@@ -25,7 +25,7 @@ from datetime import datetime
 app = Flask(__name__)
 moment = Moment(app)
 app.config.from_object('config')
-db = SQLAlchemy(app)
+db.init_app(app)
 
 # TODO: connect to a local postgresql database
 migrate = Migrate(app, db)

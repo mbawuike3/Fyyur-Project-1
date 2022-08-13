@@ -5,7 +5,15 @@
 import json
 import dateutil.parser
 import babel
-from flask import Flask, render_template, request, Response, flash, redirect, url_for
+from flask import (
+  Flask, 
+  render_template, 
+  request,
+  Response,
+  flash, redirect,
+  url_for
+
+)
 from flask_moment import Moment
 from flask_sqlalchemy import SQLAlchemy
 import logging
@@ -155,21 +163,23 @@ def create_venue_form():
 @app.route('/venues/create', methods=['POST'])
 def create_venue_submission():
   # TODO: insert form data as a new Venue record in the db, instead
-  genres = ",".join(request.form.getlist('genres'))
-  venue = Venue(name=request.form['name'],
-                city=request.form['city'],
-                state=request.form['state'],
-                address = request.form['address'],
-                phone=request.form['phone'],
-                website_link=request.form['website_link'],
-                seeking_talent = (request.form['seeking_talent'] == "y"),
-                seeking_description = request.form['seeking_description'],
-                facebook_link=request.form['facebook_link'],
-                image_link = request.form['image_link'],
-                genres=genres)
-
-  # TODO: modify data to be the data object returned from db insertion
+  form = ArtistForm(request.form)
   try:
+    genres = ",".join(request.form.getlist('genres'))
+    venue = Venue(name=request.form['name'],
+                  city=request.form['city'],
+                  state=request.form['state'],
+                  address = request.form['address'],
+                  phone=request.form['phone'],
+                  website_link=request.form['website_link'],
+                  seeking_talent = (request.form['seeking_talent'] == "y"),
+                  seeking_description = request.form['seeking_description'],
+                  facebook_link=request.form['facebook_link'],
+                  image_link = request.form['image_link'],
+                  genres=genres)
+
+    # TODO: modify data to be the data object returned from db insertion
+    
     db.session.add(venue)
     db.session.commit()
     # on successful db insert, flash success
@@ -399,25 +409,24 @@ def create_artist_form():
 def create_artist_submission():
   # called upon submitting the new artist listing form
   # TODO: insert form data as a new Venue record in the db, instead
-  genres = ",".join(request.form.getlist('genres'))
-  artist = Artist(name=request.form['name'],
-                city=request.form['city'],
-                state=request.form['state'],
-                phone=request.form['phone'],
-                website_link = request.form['website_link'],
-                seeking_venue = (request.form['seeking_venue'] == "y"),
-                seeking_description = request.form['seeking_description'],
-                facebook_link=request.form['facebook_link'],
-                image_link = request.form['image_link'],
-                genres=genres)
-
-  # TODO: modify data to be the data object returned from db insertion
+  form = ArtistForm(request.form)
   try:
+    genres = ",".join(request.form.getlist('genres'))
+    artist = Artist(name=request.form['name'],
+                  city=request.form['city'],
+                  state=request.form['state'],
+                  phone=request.form['phone'],
+                  website_link = request.form['website_link'],
+                  seeking_venue = (request.form['seeking_venue'] == "y"),
+                  seeking_description = request.form['seeking_description'],
+                  facebook_link=request.form['facebook_link'],
+                  image_link = request.form['image_link'],
+                  genres=genres)
     db.session.add(artist)
     db.session.commit()
-    # on successful db insert, flash success
+      # on successful db insert, flash success
     flash('Artist ' + request.form['name'] + ' was successfully listed!')
-  # TODO: on unsuccessful db insert, flash an error instead.
+    # TODO: on unsuccessful db insert, flash an error instead.
   except Exception as e:
     print(str(e))
     db.session.rollback()
@@ -492,6 +501,30 @@ def not_found_error(error):
 @app.errorhandler(500)
 def server_error(error):
     return render_template('errors/500.html'), 500
+
+app.errorhandler(400)
+def bad_request_eror(error):
+    return render_template('errors/400.html'), 400
+
+app.errorhandler(401)
+def unauthorized_error(error):
+    return render_template('errors/401.html'), 401
+
+app.errorhandler(403)
+def forbidden_error(error):
+    return render_template('errors/403.html'), 403
+
+app.errorhandler(422)
+def not_processable_error(error):
+    return render_template('errors/422.html'), 422
+
+app.errorhandler(405)
+def invalid_method_error(error):
+    return render_template('errors/405.html'), 405
+
+app.errorhandler(409)
+def duplicate_resource_error(error):
+    return render_template('errors/409.html'), 409
 
 
 if not app.debug:
